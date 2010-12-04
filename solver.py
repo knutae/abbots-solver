@@ -34,30 +34,29 @@ class AbbotSolver:
         self.verbose = verbose
         self.debug_out = debug_out
         self.search_map = {self.root.key: self.root}
+        self.moves = [a+d for a in self.abbots.keys() for d in '<^>,']
         
         assert len(board.targets) == 1
         target, pos = board.targets.items()[0]
         self.target_key = (target.lower(), pos[0], pos[1])
     
     def enumerate_moves(self, node):
-        for abbot in self.abbots.keys():
-            for direction in '<^>,':
-                move = abbot + direction
-                self.board.abbots = node.abbots() # reset board to node pos
-                try:
-                    self.board.move(move)
-                    new_node = SearchNode(self.board.abbots, node.moves + move)
-                    if new_node.key in self.search_map:
-                        # Node already processed
-                        #assert self.search_map[new_node.key].depth() <= new_node.depth()
-                        continue
-                    self.search_map[new_node.key] = new_node
-                    solved = self.target_key in new_node.key
-                    if solved:
-                        assert self.board.isSolved()
-                    yield new_node, solved
-                except board.IllegalMove:
-                    pass
+        for move in self.moves:
+            self.board.abbots = node.abbots() # reset board to node pos
+            try:
+                self.board.move(move)
+                new_node = SearchNode(self.board.abbots, node.moves + move)
+                if new_node.key in self.search_map:
+                    # Node already processed
+                    #assert self.search_map[new_node.key].depth() <= new_node.depth()
+                    continue
+                self.search_map[new_node.key] = new_node
+                solved = self.target_key in new_node.key
+                if solved:
+                    assert self.board.isSolved()
+                yield new_node, solved
+            except board.IllegalMove:
+                pass
 
     def solve(self, max_depth):
         assert max_depth > 0
