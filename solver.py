@@ -18,7 +18,6 @@ class SearchNode:
     def __init__(self, abbots, moves):
         self.moves = moves
         self.key = abbots_to_key(abbots)
-        #self.depth = len(moves) // 2
     
     def depth(self):
         return len(self.moves) // 2
@@ -58,16 +57,10 @@ class AbbotSolver:
             except board.IllegalMove:
                 pass
 
-    def solve(self, max_depth):
-        assert max_depth > 0
+    def solve(self):
         search_queue = deque([self.root])
         while True:
             node = search_queue.popleft()
-            if node.depth() > max_depth:
-                if self.verbose:
-                    print >>self.debug_out, 'Bailing out at depth %s (map size %)' % (
-                        node.depth(), len(search_map))
-                break
             for subnode, solved in self.enumerate_moves(node):
                 if solved:
                     if self.verbose:
@@ -83,9 +76,6 @@ if __name__ == '__main__':
     parser.add_option('-p', '--print-board', dest='print_board',
                       action='store_true', default=False,
                       help='Print the board before and after solving.')
-    parser.add_option('-d', '--max-depth', dest='max_depth',
-                      type=int, default=20,
-                      help='Maximum search depth.')
     parser.add_option('-v', '--verbose', dest='verbose',
                       action='store_true', default=False,
                       help='Print some debugging info.')
@@ -105,7 +95,7 @@ if __name__ == '__main__':
         print >>debug_out, b
     
     solver = AbbotSolver(b, opts.verbose, debug_out)
-    moves = solver.solve(opts.max_depth)
+    moves = solver.solve()
     print moves
 
     if opts.verbose:
