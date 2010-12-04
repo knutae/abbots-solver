@@ -5,25 +5,26 @@ sys.path.append('../abbots')
 import board
 from collections import deque
 
-def copy_abbots(abbots):
-    # Faster than dict/list comprehensions:
-    d = dict()
-    for a, v in abbots.items():
-        d[a] = list(v)
-    return d
-
-def search_key(abbots):
+def abbots_to_key(abbots):
     return frozenset((a,p[0],p[1]) for a,p in abbots.items())
+
+def key_to_abbots(key):
+    d = dict()
+    for a, p1, p2 in key:
+        d[a] = [p1, p2]
+    return d
 
 class SearchNode:
     def __init__(self, abbots, moves):
-        self.abbots = copy_abbots(abbots)
         self.moves = moves
-        self.key = search_key(abbots)
+        self.key = abbots_to_key(abbots)
         #self.depth = len(moves) // 2
     
     def depth(self):
         return len(self.moves) // 2
+    
+    def abbots(self):
+        return key_to_abbots(self.key)
 
 class AbbotSolver:
     def __init__(self, board, verbose):
@@ -33,10 +34,10 @@ class AbbotSolver:
         self.verbose = verbose
     
     def enumerate_moves(self, node):
-        for abbot in node.abbots.keys():
+        for abbot in self.abbots.keys():
             for direction in '<^>,':
                 move = abbot + direction
-                self.board.abbots = copy_abbots(node.abbots) # reset board to node pos
+                self.board.abbots = node.abbots() # reset board to node pos
                 try:
                     self.board.move(move)
                     yield (SearchNode(self.board.abbots, node.moves + move),
