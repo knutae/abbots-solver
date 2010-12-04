@@ -33,6 +33,7 @@ class AbbotSolver:
         self.root = SearchNode(self.abbots, '')
         self.verbose = verbose
         self.debug_out = debug_out
+        self.search_map = {self.root.key: self.root}
         
         assert len(board.targets) == 1
         target, pos = board.targets.items()[0]
@@ -46,6 +47,11 @@ class AbbotSolver:
                 try:
                     self.board.move(move)
                     new_node = SearchNode(self.board.abbots, node.moves + move)
+                    if new_node.key in self.search_map:
+                        # Node already processed
+                        #assert self.search_map[new_node.key].depth() <= new_node.depth()
+                        continue
+                    self.search_map[new_node.key] = new_node
                     solved = self.target_key in new_node.key
                     if solved:
                         assert self.board.isSolved()
@@ -55,7 +61,6 @@ class AbbotSolver:
 
     def solve(self, max_depth):
         assert max_depth > 0
-        search_map = {self.root.key: self.root}
         search_queue = deque([self.root])
         while True:
             node = search_queue.popleft()
@@ -68,13 +73,9 @@ class AbbotSolver:
                 if solved:
                     if self.verbose:
                         print >>self.debug_out, 'Found solution with depth', subnode.depth()
-                        print >>self.debug_out, 'Map size:', len(search_map)
+                        print >>self.debug_out, 'Map size:', len(self.search_map)
                     return subnode.moves
-                if subnode.key not in search_map:
-                    search_map[subnode.key] = subnode
-                    search_queue.append(subnode)
-                #else:
-                #    assert search_map[subnode.key].depth() <= subnode.depth()
+                search_queue.append(subnode)
         return ''
 
 if __name__ == '__main__':
