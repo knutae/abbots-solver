@@ -52,7 +52,7 @@ class AbbotSolver:
             node = search_queue.popleft()
             if node.depth() > max_depth:
                 if self.verbose:
-                    print 'Bailing out at depth %s (map size %)' % (
+                    print >>sys.stderr, 'Bailing out at depth %s (map size %)' % (
                         node.depth(), len(search_map))
                 break
             for subnode, solved in self.enumerate_moves(node):
@@ -60,8 +60,8 @@ class AbbotSolver:
                 #print self.board
                 if solved:
                     if self.verbose:
-                        print 'Found solution with depth', subnode.depth()
-                        print 'Map size:', len(search_map)
+                        print >>sys.stderr, 'Found solution with depth', subnode.depth()
+                        print >>sys.stderr, 'Map size:', len(search_map)
                     return subnode.moves
                 if subnode.key not in search_map:
                     search_map[subnode.key] = subnode
@@ -75,24 +75,26 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-p', '--print-board', dest='print_board',
                       action='store_true', default=False,
-                      help='Print the board before and after solving.')
+                      help='Print the board to stderr before and after solving.')
     parser.add_option('-d', '--max-depth', dest='max_depth',
                       type=int, default=20,
-                      help='Maximum search depth')
+                      help='Maximum search depth.')
     parser.add_option('-v', '--verbose', dest='verbose',
                       action='store_true', default=False,
-                      help='Print some debugging info')
+                      help='Print some debugging info to stderr.')
     opts, args = parser.parse_args()
 
     input = sys.stdin.read()
     b = board.Board(input)
     
     if opts.print_board:
-        print b
+        print >>sys.stderr, b
     
     solver = AbbotSolver(b, opts.verbose)
     moves = solver.solve(opts.max_depth)
     print moves
-    
+
+    if opts.verbose:
+        print >>sys.stderr, 'Moves:', moves
     if opts.print_board:
-        print b
+        print >>sys.stderr, b
