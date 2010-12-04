@@ -27,11 +27,12 @@ class SearchNode:
         return key_to_abbots(self.key)
 
 class AbbotSolver:
-    def __init__(self, board, verbose):
+    def __init__(self, board, verbose, debug_out):
         self.board = board
         self.abbots = board.abbots
         self.root = SearchNode(self.abbots, '')
         self.verbose = verbose
+        self.debug_out = debug_out
     
     def enumerate_moves(self, node):
         for abbot in self.abbots.keys():
@@ -53,16 +54,14 @@ class AbbotSolver:
             node = search_queue.popleft()
             if node.depth() > max_depth:
                 if self.verbose:
-                    print >>sys.stderr, 'Bailing out at depth %s (map size %)' % (
+                    print >>self.debug_out, 'Bailing out at depth %s (map size %)' % (
                         node.depth(), len(search_map))
                 break
             for subnode, solved in self.enumerate_moves(node):
-                #print subnode.moves, subnode.depth()
-                #print self.board
                 if solved:
                     if self.verbose:
-                        print >>sys.stderr, 'Found solution with depth', subnode.depth()
-                        print >>sys.stderr, 'Map size:', len(search_map)
+                        print >>self.debug_out, 'Found solution with depth', subnode.depth()
+                        print >>self.debug_out, 'Map size:', len(search_map)
                     return subnode.moves
                 if subnode.key not in search_map:
                     search_map[subnode.key] = subnode
@@ -76,26 +75,33 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('-p', '--print-board', dest='print_board',
                       action='store_true', default=False,
-                      help='Print the board to stderr before and after solving.')
+                      help='Print the board before and after solving.')
     parser.add_option('-d', '--max-depth', dest='max_depth',
                       type=int, default=20,
                       help='Maximum search depth.')
     parser.add_option('-v', '--verbose', dest='verbose',
                       action='store_true', default=False,
-                      help='Print some debugging info to stderr.')
+                      help='Print some debugging info.')
+    parser.add_option('-f', '--filename', dest='filename', type=str,
+                      help='File to print debug output to, default is stderr.')
     opts, args = parser.parse_args()
+
+    if opts.filename:
+        debug_out = open(opts.filename, 'w')
+    else:
+        debug_out = sys.stderr
 
     input = sys.stdin.read()
     b = board.Board(input)
     
     if opts.print_board:
-        print >>sys.stderr, b
+        print >>debug_out, b
     
-    solver = AbbotSolver(b, opts.verbose)
+    solver = AbbotSolver(b, opts.verbose, debug_out)
     moves = solver.solve(opts.max_depth)
     print moves
 
     if opts.verbose:
-        print >>sys.stderr, 'Moves:', moves
+        print >>debug_out, 'Moves:', moves
     if opts.print_board:
-        print >>sys.stderr, b
+        print >>debug_out, b
