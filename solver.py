@@ -33,6 +33,10 @@ class AbbotSolver:
         self.root = SearchNode(self.abbots, '')
         self.verbose = verbose
         self.debug_out = debug_out
+        
+        assert len(board.targets) == 1
+        target, pos = board.targets.items()[0]
+        self.target_key = (target.lower(), pos[0], pos[1])
     
     def enumerate_moves(self, node):
         for abbot in self.abbots.keys():
@@ -41,8 +45,11 @@ class AbbotSolver:
                 self.board.abbots = node.abbots() # reset board to node pos
                 try:
                     self.board.move(move)
-                    yield (SearchNode(self.board.abbots, node.moves + move),
-                           self.board.isSolved())
+                    new_node = SearchNode(self.board.abbots, node.moves + move)
+                    solved = self.target_key in new_node.key
+                    if solved:
+                        assert self.board.isSolved()
+                    yield new_node, solved
                 except board.IllegalMove:
                     pass
 
