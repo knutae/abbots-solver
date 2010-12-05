@@ -103,6 +103,7 @@ if __name__ == '__main__':
     print moves
 
     if opts.verbose:
-        print >>debug_out, 'Moves:', moves
+        moves_readable = ' '.join(c+d for c,d in zip(moves[::2], moves[1::2]))
+        print >>debug_out, 'Moves:', moves_readable
     if opts.print_board:
         print >>debug_out, b
