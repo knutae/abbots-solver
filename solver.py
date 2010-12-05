@@ -99,6 +99,9 @@ if __name__ == '__main__':
         print >>debug_out, b
     
     solver = AbbotSolver(b, opts.verbose, debug_out)
+    if opts.verbose:
+        import datetime
+        starttime = datetime.datetime.now()
     moves = solver.solve()
     print moves
 
@@ -107,3 +110,6 @@ if __name__ == '__main__':
         print >>debug_out, 'Moves:', moves_readable
     if opts.print_board:
         print >>debug_out, b
+    if opts.verbose:
+        endtime = datetime.datetime.now()
+        print >>debug_out, 'Duration: %s seconds' % (endtime - starttime).total_seconds()
