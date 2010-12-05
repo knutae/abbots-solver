@@ -3,7 +3,6 @@
 import sys
 sys.path.append('../abbots')
 import board
-from collections import deque
 
 def abbots_to_key(abbots):
     return frozenset((a,p[0],p[1]) for a,p in abbots.items())
@@ -58,17 +57,22 @@ class AbbotSolver:
                 pass
 
     def solve(self):
-        search_queue = deque([self.root])
-        while True:
-            node = search_queue.popleft()
-            for subnode, solved in self.enumerate_moves(node):
-                if solved:
-                    if self.verbose:
-                        print >>self.debug_out, 'Found solution with depth', subnode.depth()
-                        print >>self.debug_out, 'Map size:', len(self.search_map)
-                    return subnode.moves
-                search_queue.append(subnode)
-        return ''
+        search_list = [self.root]
+        for depth in xrange(1, 9999):
+            next_list = []
+            while search_list:
+                node = search_list.pop()
+                for subnode, solved in self.enumerate_moves(node):
+                    if solved:
+                        if self.verbose:
+                            print >>self.debug_out, 'Found solution with depth', subnode.depth()
+                            print >>self.debug_out, 'Map size:', len(self.search_map)
+                        return subnode.moves
+                    next_list.append(subnode)
+            if self.verbose:
+                print >>self.debug_out, 'Depth %s, map size %s, %s new nodes' % (
+                    depth, len(self.search_map), len(next_list))
+            search_list = next_list
 
 if __name__ == '__main__':
     import optparse
