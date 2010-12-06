@@ -9,7 +9,7 @@ else:
 
 solver = [sys.executable] + pyargs + [
     'solver.py',
-    #'-v', '-f', 'debug.txt'
+    '-v', '-f', 'debug.txt'
 ]
 
 cmd = [
