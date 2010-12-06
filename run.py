@@ -2,10 +2,20 @@
 
 import sys, subprocess
 
-cmd = [
-    sys.executable, '../abbots/client.py', '-s', 'munkeliv.ath.cx', '--',
-    sys.executable, 'solver.py', '-v', '-f', 'debug.txt',
+if sys.platform == 'win32':
+    pyargs = ['-u'] # binary mode
+else:
+    pyargs = []
+
+solver = [sys.executable] + pyargs + [
+    'solver.py',
+    #'-v', '-f', 'debug.txt'
 ]
+
+cmd = [
+    sys.executable, '../abbots/client.py', '-s', 'munkeliv.ath.cx',
+    '--iama=BFG9001', '--',
+] + solver
 subprocess.call(cmd)
 
 print 'Debug output:'
