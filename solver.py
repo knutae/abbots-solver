@@ -75,7 +75,7 @@ class AbbotSolver:
             search_list = next_list
 
 if __name__ == '__main__':
-    import optparse
+    import optparse, os
     parser = optparse.OptionParser()
     parser.add_option('-p', '--print-board', dest='print_board',
                       action='store_true', default=False,
@@ -113,3 +113,8 @@ if __name__ == '__main__':
     if opts.verbose:
         endtime = datetime.datetime.now()
         print >>debug_out, 'Duration: %s seconds' % (endtime - starttime).total_seconds()
+    
+    # non-graceful fast exit, avoiding slow (memory?) cleanup
+    if opts.filename:
+        debug_out.close()
+    os._exit(0)
